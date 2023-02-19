@@ -2,14 +2,13 @@ import { useState, useMemo } from 'react';
 import { Row, Col, Stack, Button, Form, Card, Badge, Modal } from "react-bootstrap"
 import { Link } from "react-router-dom";
 import ReactSelect from "react-select";
-import { Update } from 'vite/types/hmrPayload';
 import { Tag } from "./App";
 import styles from "./NoteList.module.css";
 
 
 type simplifiedNote = {
-    tags: Tag[],
-    title: string,
+    tags: Tag[]
+    title: string
     id: string
 }
 
@@ -24,16 +23,30 @@ type EditTagsModalProps = {
     show: boolean
     availableTags: Tag[]
     handleClose: () => void
+    onDeleteTag: (id: string) => void
+    onUpdateTag: (id: string, label: string) => void
 }
 
-export function NoteList({ availableTags, notes, onUpdateTag, onDeleteTag }: NoteListProps){
+export const NoteList = ({ availableTags, notes, onUpdateTag, onDeleteTag }: NoteListProps) => {
     const [selectedTags, setSelectedTags] = useState<Tag[]>([])
     const [title, setTitle] = useState("")
     const [editTagsModalIsOpen, setEditTagsModalIsOpen] = useState(false)
+    
     const filteredNotes = useMemo(() => {
-        return (title === "" || note.title.toLowerCase().includes(title.toLowerCase())) && (selectedTags.length === 0 || selectedTags.every(tag => note.tags.some(noteTag => noteTag.id === tag.id)))
+        return notes.filter(note => {
+            (title === "" || 
+                note.title.toLowerCase().includes(title.toLowerCase())) && 
+                    (selectedTags.length === 0 || 
+                        selectedTags.every(tag => 
+                            note.tags.some(noteTag => 
+                                noteTag.id === tag.id
+                            )
+                        )
+                    )
+        }) 
     }, [title, selectedTags, notes])
-    return 
+    
+    return ( 
     <>
     <Row className="align-items-center mb-4">
         <Col>
@@ -81,20 +94,21 @@ export function NoteList({ availableTags, notes, onUpdateTag, onDeleteTag }: Not
             </Col>
         </Row>
     </Form>
-    <Row xs{1} sm={2} lg={3} xl={4} className="g-3">
+    <Row xs={1} sm={2} lg={3} xl={4} className="g-3">
         {filteredNotes.map(note => (
             <Col key={note.id}>
                 <NoteCard id={note.id} title={note.title} tags={note.tags} />
             </Col>
         ))}
     </Row>
-    <EditTagsModal onDelete={onDeleteTag} onUpdate={onUpdateTag} show={show} handleClose={() => setEditTagsModalIsOpen(false)} availableTags={availableTags}/>
+    <EditTagsModal onUpdateTag={onUpdateTag} onDeleteTag={onDeleteTag} show={editTagsModalIsOpen} handleClose={() => setEditTagsModalIsOpen(false)} availableTags={availableTags}/>
     </>
+    )
 }
 
-const NoteCard = ({id, title, tags}, simplifiedNote) => {
+const NoteCard = ({id, title, tags}: simplifiedNote) => {
     return(
-        <Card as={link} to={`/${id}`} className={`h-100 text-reset text-decoration-none ${styles.card}`}>
+        <Card as={Link} to={`/${id}`} className={`h-100 text-reset text-decoration-none ${styles.card}`}>
             <Card.Body>
                 <Stack gap={2} className="align-items-center justify-content-center h-100">
                     <span className="fs-5">{title}</span>
@@ -111,7 +125,7 @@ const NoteCard = ({id, title, tags}, simplifiedNote) => {
     );
 }
 
-const EditTagsModal = ({availableTags, handleClose, show, onDeleteTag, onUpdateTag}: simplifiedNote) => (
+const EditTagsModal = ({availableTags, handleClose, show, onDeleteTag, onUpdateTag}: EditTagsModalProps) => (
     <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
             <Modal.Title>Edit Tags</Modal.Title>

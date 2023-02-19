@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import CreateAbleReactSelect from "react-select/creatable"
 import { NoteData, Tag } from "./App";
 import { v4 as uuidV4 } from 'uuid';
-const navigate = useNavigate()
 
 type NoteFormProps = {
     onSubmit: (data: NoteData) => void
@@ -12,17 +11,17 @@ type NoteFormProps = {
     availableTags: Tag[]
 } & Partial<NoteData>
 
-export function NoteForm({onSubmit, onAddTag, availableTags, title = "", markdown = "", tags = []}: NoteFormProps){
+export const NoteForm = ({onSubmit, onAddTag, availableTags, title = "", markdown = "", tags = []}: NoteFormProps) => {
     const titleRef = useRef<HTMLInputElement>(null);
     const markdownRef = useRef<HTMLTextAreaElement>(null);
     const [selectedTags, setSelectedTags] = useState<Tag[]>(tags)
     const navigate = useNavigate();
 
-    function handleSubmit(e: FormEvent){
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         onSubmit({
             title: titleRef.current!.value,
-            body: markdownRef.current!.value,
+            markdown: markdownRef.current!.value,
             tags: selectedTags
         })
         navigate("..")
@@ -42,7 +41,7 @@ export function NoteForm({onSubmit, onAddTag, availableTags, title = "", markdow
                         <Form.Group controlId="tags">
                             <Form.Label>Tags</Form.Label>
                             <CreateAbleReactSelect  
-                            onCreateAbleOption={label => {
+                            onCreateOption={label => {
                                 const newTag = {id: uuidV4(), label}
                                 onAddTag(newTag)
                                 setSelectedTags(prev => [...prev, newTag])

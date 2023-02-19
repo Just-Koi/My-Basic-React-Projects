@@ -21,13 +21,13 @@ export type RawNote = {
 
 export type RawNoteData = {
   title: string
-  body: string
+  markdown: string
   tagIds: string[]
 }
 
 export type NoteData = {
   title: string
-  body: string
+  markdown: string
   tags: Tag[]
 }
 
@@ -36,7 +36,7 @@ export type Tag = {
   label: string
 }
 
-const App = () =>{
+const App = () => {
   const [notes, setNotes] = useLocalStorage<RawNote[]>("NOTES", [])
   const [tags, setTags] = useLocalStorage<Tag[]>("TAGS", [])
 
@@ -61,10 +61,10 @@ const App = () =>{
           return note
         }
       }
-    })
+    )})
   }
 
-  const onCreateNote = ({ tags, ...data}: NoteData){
+  const onCreateNote = ({ tags, ...data}: NoteData) => {
     setNotes(prevNotes => {
       return [...prevNotes, 
         {...data, id: uuidV4(), tagIds: tags.map(tag => tag.id)}
@@ -82,7 +82,7 @@ const App = () =>{
     })
   }
 
-  const updateTags = (id: string, label: string) => {
+  const updateTag = (id: string, label: string) => {
     setTags(prevTags => { 
     return prevTags.map(tag => {
       if (tag.id === id) {
@@ -92,6 +92,7 @@ const App = () =>{
       }
     })
     })
+  }
 
   return (
   <Container className="mx-2">
